@@ -1,6 +1,5 @@
 """styled_popup"""
 import sublime
-import sublime_plugin
 import os
 import hashlib
 import time
@@ -8,16 +7,25 @@ import re
 
 from plistlib import readPlistFromBytes
 
-def show_popup(view, content, *args, **kwargs):
-	"""Parse the color scheme if needed and show the styled pop-up."""
+def get_stylesheet(view):
+	"""Parse the color scheme if needed and return a matching stylesheet."""
 
-	if view == None:
+	if view is None:
 		return
 
 	manager = StyleSheetManager()
 	color_scheme = view.settings().get("color_scheme")
 
-	style_sheet = manager.get_stylesheet(color_scheme)["content"]
+	return manager.get_stylesheet(color_scheme)["content"]
+
+
+def show_popup(view, content, *args, **kwargs):
+	"""Parse the color scheme if needed and show the styled pop-up."""
+
+	if view is None:
+		return
+
+	style_sheet = get_stylesheet(view)
 
 	html = "<html><body>"
 	html += "<style>%s</style>" % (style_sheet)
@@ -285,7 +293,7 @@ class StackBuilder():
 				variable(\.(parameter|language|other))?)"""
 
 		for css_class in in_classes:
-			match = re.search(regex, css_class, re.IGNORECASE + re.VERBOSE) 
+			match = re.search(regex, css_class, re.IGNORECASE + re.VERBOSE)
 			if (match):
 				out_classes.append(css_class)
 
